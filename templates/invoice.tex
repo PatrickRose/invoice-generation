@@ -1,0 +1,58 @@
+\documentclass{invoice} % Use the custom invoice class (invoice.cls)
+
+\def \tab {\hspace*{3ex}} % Define \tab to create some horizontal white space
+
+\begin{document}
+
+%----------------------------------------------------------------------------------------
+%	HEADING SECTION
+%----------------------------------------------------------------------------------------
+
+\hfil{\Huge\bf Patrick Rose}\hfil % Company providing the invoice
+\bigskip\break % Whitespace
+\hrule % Horizontal line
+
+43 Southend Place \hfill 07906507110 \\ % Your address and contact information
+Sheffield, S2 5FQ \hfill whoelse@patrickrosemusic.co.uk\\
+
+\textbf{Date:} {{ date }}  \hfill \textbf{Ref:} {{ reference }}
+
+{\bf Invoice To:} \\
+\tab {{ payee }} \\ % Invoice recipient
+
+%----------------------------------------------------------------------------------------
+%	TABLE OF EXPENSES
+%----------------------------------------------------------------------------------------
+
+\begin{invoiceTable}
+
+{% for description, amount in fees %}
+    \feerow{{ '{' }}{{ description }}{{ '}' }}{{ '{' }}{{ amount }}{{ '}' }}
+{% endfor %}
+
+\end{invoiceTable}
+
+% ----------------------------------------------------------------------------------------
+Please pay through one of the following methods:
+
+\begin{description}
+\item[BACS] Please use the following details, with the above reference:
+  \begin{description}
+  \item[Account Holder] Patrick Rose
+  \item[Sort Code] 07-02-46
+  \item[Account Number] 47633306
+  \end{description}
+\item[Cheque] Please make the cheque payable to Patrick Rose.
+\item[Cash] If prearranged
+\end{description}
+
+\textit{Regards}
+
+Patrick Rose
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

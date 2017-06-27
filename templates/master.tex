@@ -1,0 +1,60 @@
+\documentclass{invoice} % Use the custom invoice class (invoice.cls)
+
+\def \tab {\hspace*{3ex}} % Define \tab to create some horizontal white space
+
+\begin{document}
+
+%----------------------------------------------------------------------------------------
+%	HEADING SECTION
+%----------------------------------------------------------------------------------------
+
+\hfil{\Huge\bf Patrick Rose}\hfil % Company providing the invoice
+\bigskip\break % Whitespace
+\hrule % Horizontal line
+
+43 Southend Place \hfill 07906507110 \\ % Your address and contact information
+Sheffield, S2 5FQ \hfill whoelse@patrickrosemusic.co.uk\\
+
+\textbf{Date:} \today
+
+%----------------------------------------------------------------------------------------
+%	TABLE OF EXPENSES
+%----------------------------------------------------------------------------------------
+
+\begin{invoiceTable}
+
+\feetype{Income}
+
+{% for description, amount in fees %}
+    \feerow{{ '{' }}{{ description }}{{ '}{' }}{{ amount }}{{ '}' }}
+{% endfor %}
+
+  {% if expenses|length > 0 %}
+  \subtotal
+{% endif %}
+  {% for reference, expenseList in expenses %}
+    {% if expenseList|length > 0 %}
+        \feetype{{ '{' }}{{ reference }} expenses}
+
+        {% for description, amount in expenseList %}
+          \feerow{{ '{' }}{{ description }}{{ '}{-' }}{{ amount }}{{ '}' }}
+        {% endfor %}
+
+        \subtotal
+    {% endif %}
+  {% endfor %}
+
+\end{invoiceTable}
+
+% ----------------------------------------------------------------------------------------
+
+\textit{Regards}
+
+Patrick Rose
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,22 @@
+{
+    "name": "patrickrose/invoices",
+    "description": "Generate invoices",
+    "require": {
+        "symfony/console": "^3.3",
+        "twig/twig": "^2.4",
+        "php": "^7.1"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Patrick Rose",
+            "email": "pjr0911025@googlemail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "PatrickRose\\Invoices\\": "src/"
+        }
+    },
+    "minimum-stability": "stable"
+}
