@@ -2,6 +2,9 @@
 
 namespace PatrickRose\Invoices\Config;
 
+use PatrickRose\Invoices\Exceptions\LockException;
+use PatrickRose\Invoices\Exceptions\UnknownConfigKeyException;
+
 class JsonConfig implements ConfigInterface
 {
     private $config;
@@ -16,14 +19,10 @@ class JsonConfig implements ConfigInterface
 
         $this->stream = fopen($filename, 'r+');
 
-        if (!flock($this->stream, LOCK_EX))
+        if (!flock($this->stream, LOCK_EX | LOCK_NB))
         {
-            throw new \RuntimeException("Unable to lock $filename");
+            throw new LockException("Unable to lock $filename");
         }
-
-        register_shutdown_function(
-            function() {$this->shutdown();}
-        );
 
         $this->config = json_decode(stream_get_contents($this->stream), true);
 
@@ -33,27 +32,32 @@ class JsonConfig implements ConfigInterface
         }
     }
 
-    public function has($key)
+    public function has(string $key) : bool
     {
         return array_key_exists($key, $this->config);
     }
 
-    public function get($key)
+    public function get(string $key)
     {
+        if (!array_key_exists($key, $this->config))
+        {
+            throw new UnknownConfigKeyException("Unknown key $key");
+        }
+
         return $this->config[$key];
     }
 
-    public function set($key, $value)
+    public function set(string $key, $value) : void
     {
         $this->config[$key] = $value;
     }
 
-    public function getDefault($key, $default)
+    public function getDefault(string $key, $default)
     {
         return $this->has($key) ? $this->get($key) : $default;
     }
 
-    private function shutdown()
+    public function __destruct()
     {
         fseek($this->stream, 0);
         fwrite($this->stream, json_encode($this->config));
