@@ -7,10 +7,26 @@ use Twig\TemplateWrapper;
 class Invoice
 {
 
+    /**
+     * @var string
+     */
     private $reference;
+
+    /**
+     * @var string
+     */
     private $payee;
+
+    /**
+     * @var string
+     */
     private $date;
+
+    /**
+     * @var array
+     */
     private $fees;
+
     /**
      * @var array
      */
@@ -78,4 +94,38 @@ class Invoice
         return $this->expenses;
     }
 
+    /**
+     * @return string
+     */
+    public function getPayee(): string
+    {
+        return $this->payee;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDate(): string
+    {
+        return $this->date;
+    }
+
+    /**
+     * @return array
+     */
+    public function getFees(): array
+    {
+        return $this->fees;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'reference' => $this->getReference(),
+            'payee' => $this->getPayee(),
+            'date' => $this->getDate(),
+            'fees' => $this->getFees(),
+            'expenses' => $this->getExpenses()
+        ];
+    }
 }

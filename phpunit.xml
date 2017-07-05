@@ -1,0 +1,5 @@
+<phpunit>
+  <testsuite name="invoices">
+    <directory>tests/</directory>
+  </testsuite>
+</phpunit>
