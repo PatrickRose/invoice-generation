@@ -50,7 +50,6 @@ class JsonRepository implements InvoiceRepositoryInterface
         }
     }
 
-
     /**
      * Add an invoice to the repository
      *
@@ -81,7 +80,6 @@ class JsonRepository implements InvoiceRepositoryInterface
 
         foreach($this->invoices as $invoice)
         {
-            compact('payee', 'date', 'fees', 'expenses');
             $toWrite[] = $invoice->toArray();
         }
 
@@ -91,4 +89,14 @@ class JsonRepository implements InvoiceRepositoryInterface
         fclose($this->stream);
     }
 
+    /**
+     * Instantiate this repository based on the given
+     *
+     * @param array $config
+     * @return InvoiceRepositoryInterface
+     */
+    public static function instantiate(array $config): InvoiceRepositoryInterface
+    {
+        return new JsonRepository($config['filename']);
+    }
 }

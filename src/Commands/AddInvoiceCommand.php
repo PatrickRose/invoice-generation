@@ -2,7 +2,9 @@
 
 namespace PatrickRose\Invoices\Commands;
 
-use PatrickRose\Invoices\Config\ConfigInterface;
+use PatrickRose\Invoices\Exceptions\RuntimeException;
+use PatrickRose\Invoices\Invoice;
+use PatrickRose\Invoices\Repositories\InvoiceRepositoryInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
@@ -11,14 +13,14 @@ use Symfony\Component\Console\Question\Question;
 class AddInvoiceCommand extends Command
 {
     /**
-     * @var ConfigInterface
+     * @var InvoiceRepositoryInterface
      */
-    private $config;
+    private $invoiceRepository;
 
-    public function __construct(ConfigInterface $config)
+    public function __construct(InvoiceRepositoryInterface $invoiceRepository)
     {
         parent::__construct('add');
-        $this->config = $config;
+        $this->invoiceRepository = $invoiceRepository;
     }
 
     protected function configure()
@@ -51,11 +53,10 @@ class AddInvoiceCommand extends Command
             $expenses[$expenseDescription] = $expenseAmount;
         }
 
-        $invoices = $this->config->getDefault('invoices', []);
-
-        $invoices[$reference] = compact('payee', 'date', 'fees', 'expenses');
-
-        $this->config->set('invoices', $invoices);
+        if (!$this->invoiceRepository->add(new Invoice($reference, $payee, $date, $fees, $expenses)))
+        {
+            throw new RuntimeException("Unable to add invoice repository");
+        }
     }
 
 

@@ -5,6 +5,7 @@ namespace PatrickRose\Invoices\Commands;
 use PatrickRose\Invoices\Config\ConfigInterface;
 use PatrickRose\Invoices\Invoice;
 use PatrickRose\Invoices\MasterInvoice;
+use PatrickRose\Invoices\Repositories\InvoiceRepositoryInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -12,16 +13,16 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class GenerateInvoicesCommand extends Command
 {
-    /**
-     * @var ConfigInterface
-     */
-    private $config;
 
-    public function __construct(ConfigInterface $config)
+    /**
+     * @var InvoiceRepositoryInterface
+     */
+    private $invoiceRepository;
+
+    public function __construct(InvoiceRepositoryInterface $invoiceRepository)
     {
         parent::__construct('generate');
-
-        $this->config = $config;
+        $this->invoiceRepository = $invoiceRepository;
     }
 
 
@@ -33,12 +34,12 @@ class GenerateInvoicesCommand extends Command
 
     public function run(InputInterface $input, OutputInterface $output)
     {
-        if (!$this->config->has('invoices'))
+        $invoices = $this->invoiceRepository->getAll();
+
+        if (count($invoices) == 0)
         {
             throw new \LogicException('No invoices found');
         }
-
-        $invoices = $this->config->get('invoices');
 
         $tempDir = __DIR__ . '/../../tmp/tex/' . time();
 
@@ -46,16 +47,8 @@ class GenerateInvoicesCommand extends Command
 
         $masterInvoice = new MasterInvoice();
 
-        foreach($invoices as $reference => $values)
+        foreach($invoices as $invoice)
         {
-            $invoice = new Invoice(
-                $reference,
-                $values['payee'],
-                $values['date'],
-                $values['fees'],
-                $values['expenses'] ?? []
-            );
-
             $invoice->generateTexFile($tempDir);
             $masterInvoice->addInvoice($invoice);
         }
@@ -66,7 +59,11 @@ class GenerateInvoicesCommand extends Command
         $escapeTempDir = escapeshellarg($tempDir);
         exec("cd $escapeTempDir; latexmk -pdf -interaction=nonstopmode");
 
-        mkdir(__DIR__ . '/../../output', 0775);
+        if (!file_exists(__DIR__ . '/../../output'))
+        {
+            mkdir(__DIR__ . '/../../output', 0775);
+        }
+
         exec("cp $escapeTempDir/*.pdf " . escapeshellarg(__DIR__ . '/../../output'));
         exec("rm -rf $escapeTempDir");
     }

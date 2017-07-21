@@ -22,4 +22,12 @@ interface InvoiceRepositoryInterface
      */
     public function getAll(): array;
 
+    /**
+     * Instantiate this repository based on the given
+     *
+     * @param array $config
+     * @return InvoiceRepositoryInterface
+     */
+    public static function instantiate(array $config): InvoiceRepositoryInterface;
+
 }

@@ -80,4 +80,17 @@ class JsonRepositoryTest extends InvoiceRepositoryTestCase
 
         $this->assertEquals(json_encode([$invoice->toArray()]), file_get_contents($testFile));
     }
+
+    /**
+     * Get the instantiate configuration
+     *
+     * @see self::testInstantiate
+     */
+    protected function getInstantiateConfiguration(): array
+    {
+        $testFile = tempnam(sys_get_temp_dir(), $this->getName());
+        $this->testFiles[] = $testFile;
+
+        return ['filename' => $testFile];
+    }
 }

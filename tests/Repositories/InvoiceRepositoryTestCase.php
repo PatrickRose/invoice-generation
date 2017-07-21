@@ -36,4 +36,20 @@ abstract class InvoiceRepositoryTestCase extends TestCase
      */
     abstract protected function getRepositoryUnderTest(array $invoices = []): InvoiceRepositoryInterface;
 
+    public function testInstantiate()
+    {
+        $class = get_class($this->getRepositoryUnderTest([]));
+
+        $returnedClass = $class::instantiate($this->getInstantiateConfiguration());
+
+        static::assertInstanceOf($class, $returnedClass, 'Did not get the correct class');
+    }
+
+    /**
+     * Get the instantiate configuration
+     *
+     * @see self::testInstantiate
+     */
+    abstract protected function getInstantiateConfiguration(): array;
+
 }
