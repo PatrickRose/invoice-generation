@@ -93,4 +93,22 @@ class JsonRepositoryTest extends InvoiceRepositoryTestCase
 
         return ['filename' => $testFile];
     }
+
+    public function test_ItHandlesTruncationOfJson()
+    {
+        $file = $this->getInstantiateConfiguration()['filename'];
+        $invoice = new Invoice('test', 'test', 'test', [], []);
+
+        file_put_contents($file, "[\n\n\n" . json_encode($invoice->toArray()) . "\n\n\n\n\n]");
+
+        $repository = new JsonRepository($file);
+
+        $this->assertEquals([$invoice], $repository->getAll());
+
+        unset($repository);
+
+        $repository = new JsonRepository($file);
+
+        $this->assertEquals([$invoice], $repository->getAll());
+    }
 }

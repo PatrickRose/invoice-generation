@@ -55,6 +55,7 @@ class JsonConfig implements ConfigInterface
 
     public function __destruct()
     {
+        ftruncate($this->stream, 0);
         fseek($this->stream, 0);
         fwrite($this->stream, json_encode($this->config));
 

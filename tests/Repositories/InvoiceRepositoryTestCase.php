@@ -30,6 +30,17 @@ abstract class InvoiceRepositoryTestCase extends TestCase
         $this->assertEquals([$invoice], $repository->getAll());
     }
 
+    public function testCanAddANewInvoiceToAnExistingList()
+    {
+        $baseInvoice = new Invoice('1234-1234', 'Test payee', 'Some date', ['fee' => 123], ['expense' => 123]);
+        $invoice = new Invoice('1234', 'Test payee', 'Some date', ['fee' => 123], ['expense' => 123]);
+
+        $repository = $this->getRepositoryUnderTest([$baseInvoice]);
+
+        $this->assertTrue($repository->add($invoice));
+        $this->assertEquals([$baseInvoice, $invoice], $repository->getAll());
+    }
+
     /**
      * @param Invoice[] $invoices
      * @return InvoiceRepositoryInterface

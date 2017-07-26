@@ -60,4 +60,23 @@ class JsonConfigTest extends ConfigInterfaceTestCase
 
         new JsonConfig($testFile);
     }
+
+
+
+    public function test_ItHandlesTruncationOfJson()
+    {
+        $testFile = tempnam(sys_get_temp_dir(), $this->getName());
+        $this->testFiles[] = $testFile;
+        file_put_contents($testFile, "{\n\n\n\"test\":\"value\"\n\n\n\n\n}");
+
+        $config = new JsonConfig($testFile);
+
+        $this->assertTrue($config->has("test"));
+
+        unset($config);
+
+        $config = new JsonConfig($testFile);
+
+        $this->assertTrue($config->has("test"));
+    }
 }

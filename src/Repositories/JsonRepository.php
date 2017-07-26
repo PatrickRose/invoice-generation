@@ -75,6 +75,8 @@ class JsonRepository implements InvoiceRepositoryInterface
 
     public function __destruct()
     {
+        // Truncate the file, in case it had prettified json
+        ftruncate($this->stream, 0);
         fseek($this->stream, 0);
         $toWrite = [];
 
