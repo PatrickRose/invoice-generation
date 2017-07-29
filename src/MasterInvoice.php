@@ -17,28 +17,20 @@ class MasterInvoice
         $this->expenses[$invoice->getReference()] = $invoice->getExpenses();
     }
 
-    public function generateTexFile($directory)
+    /**
+     * @return array
+     */
+    public function getFees()
     {
-        $template = $this->getTwigTemplate();
-
-        file_put_contents(
-            "$directory/master.tex",
-            $template->render([
-                'fees' => $this->fees,
-                'expenses' => $this->expenses
-            ])
-        );
+        return $this->fees;
     }
 
-    private function getTwigTemplate(): \Twig_TemplateWrapper
+    /**
+     * @return array
+     */
+    public function getExpenses()
     {
-        if ($this->template === null) {
-            $loader = new \Twig_Loader_Filesystem(__DIR__ . '/../templates');
-            $template = new \Twig_Environment($loader, array('debug' => true));
-            $this->template = $template->load('master.tex');
-        }
-
-        return $this->template;
+        return $this->expenses;
     }
 
 }

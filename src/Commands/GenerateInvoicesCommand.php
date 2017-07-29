@@ -3,6 +3,8 @@
 namespace PatrickRose\Invoices\Commands;
 
 use PatrickRose\Invoices\Config\ConfigInterface;
+use PatrickRose\Invoices\Conversion\ConverterInterface;
+use PatrickRose\Invoices\Exceptions\RuntimeException;
 use PatrickRose\Invoices\Invoice;
 use PatrickRose\Invoices\MasterInvoice;
 use PatrickRose\Invoices\Repositories\InvoiceRepositoryInterface;
@@ -18,11 +20,16 @@ class GenerateInvoicesCommand extends Command
      * @var InvoiceRepositoryInterface
      */
     private $invoiceRepository;
+    /**
+     * @var ConverterInterface
+     */
+    private $converter;
 
-    public function __construct(InvoiceRepositoryInterface $invoiceRepository)
+    public function __construct(InvoiceRepositoryInterface $invoiceRepository, ConverterInterface $converter)
     {
         parent::__construct('generate');
         $this->invoiceRepository = $invoiceRepository;
+        $this->converter = $converter;
     }
 
 
@@ -36,35 +43,27 @@ class GenerateInvoicesCommand extends Command
     {
         $invoices = $this->invoiceRepository->getAll();
 
-        if (count($invoices) == 0)
-        {
+        if (count($invoices) == 0) {
             throw new \LogicException('No invoices found');
         }
 
-        $tempDir = __DIR__ . '/../../tmp/tex/' . time();
-
-        mkdir($tempDir, 0775, true);
-
         $masterInvoice = new MasterInvoice();
 
-        foreach($invoices as $invoice)
-        {
-            $invoice->generateTexFile($tempDir);
-            $masterInvoice->addInvoice($invoice);
-        }
-
-        $masterInvoice->generateTexFile($tempDir);
-
-        copy(__DIR__ . '/../../dist/invoice.cls', "$tempDir/invoice.cls");
-        $escapeTempDir = escapeshellarg($tempDir);
-        exec("cd $escapeTempDir; latexmk -pdf -interaction=nonstopmode");
-
-        if (!file_exists(__DIR__ . '/../../output'))
-        {
+        if (!is_dir(__DIR__ . '/../../output')) {
             mkdir(__DIR__ . '/../../output', 0775);
         }
 
-        exec("cp $escapeTempDir/*.pdf " . escapeshellarg(__DIR__ . '/../../output'));
-        exec("rm -rf $escapeTempDir");
+        foreach ($invoices as $invoice) {
+            if (!$this->converter->convertInvoice(
+                $invoice,
+                __DIR__ . '/../../output/' . $invoice->getReference() . '.pdf'
+            )
+            ) {
+                throw new RuntimeException('Unable to convert ' . $invoice->getReference());
+            }
+            $masterInvoice->addInvoice($invoice);
+        }
+
+        $this->converter->convertMasterInvoice($masterInvoice, __DIR__ . '/../../output/master.pdf');
     }
 }
